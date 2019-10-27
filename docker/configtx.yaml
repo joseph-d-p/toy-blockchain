@@ -1,0 +1,254 @@
+Organizations:
+
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/toycorp.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    - &Sales
+        Name: SalesMSP
+        ID: SalesMSP
+        MSPDir: crypto-config/peerOrganizations/sales.toycorp.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('SalesMSP.admin', 'SalesMSP.peer', 'SalesMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('SalesMSP.admin', 'SalesMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('SalesMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.sales.toycorp.com
+              Port: 7051
+
+    - &Accounting
+        Name: AccountingMSP
+        ID: AccountingMSP
+        MSPDir: crypto-config/peerOrganizations/accounting.toycorp.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('AccountingMSP.admin', 'AccountingMSP.peer', 'AccountingMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('AccountingMSP.admin', 'AccountingMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('AccountingMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.accounting.toycorp.com
+              Port: 9051
+
+    - &Legal
+        Name: LegalMSP
+        ID: LegalMSP
+        MSPDir: crypto-config/peerOrganizations/legal.toycorp.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('LegalMSP.admin', 'LegalMSP.peer', 'LegalMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('LegalMSP.admin', 'LegalMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('LegalMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.legal.toycorp.com
+              Port: 11051
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_4_3: true
+        V1_3: false
+        V1_1: false
+
+    Orderer: &OrdererCapabilities
+        V1_4_2: true
+        V1_1: false
+
+    Application: &ApplicationCapabilities
+        V1_4_2: true
+        V1_3: false
+        V1_2: false
+        V1_1: false
+
+Application: &ApplicationDefaults
+
+    Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+
+    OrdererType: solo
+    Addresses:
+        - orderer.toycorp.com:7050
+
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9092
+
+    Organizations:
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+    TwoOrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Sales
+                    - *Accounting
+                    - *Legal
+
+    TwoOrgsChannel:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Sales
+                - *Accounting
+                - *Legal
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+    SampleDevModeKafka:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: kafka
+            Kafka:
+                Brokers:
+                - kafka.toycorp.com:9092
+
+            Organizations:
+            - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+            - <<: *OrdererOrg
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                - *Sales
+                - *Accounting
+                - *Legal
+
+    SampleMultiNodeEtcdRaft:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: etcdraft
+            EtcdRaft:
+                Consenters:
+                - Host: orderer.toycorp.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer.toycorp.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer.toycorp.com/tls/server.crt
+                - Host: orderer2.toycorp.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer2.toycorp.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer2.toycorp.com/tls/server.crt
+                - Host: orderer3.toycorp.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer3.toycorp.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer3.toycorp.com/tls/server.crt
+                - Host: orderer4.toycorp.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer4.toycorp.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer4.toycorp.com/tls/server.crt
+                - Host: orderer5.toycorp.com
+                  Port: 7050
+                  ClientTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer5.toycorp.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/toycorp.com/orderers/orderer5.toycorp.com/tls/server.crt
+            Addresses:
+                - orderer.toycorp.com:7050
+                - orderer2.toycorp.com:7050
+                - orderer3.toycorp.com:7050
+                - orderer4.toycorp.com:7050
+                - orderer5.toycorp.com:7050
+
+            Organizations:
+            - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+            - <<: *OrdererOrg
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                - *Sales
+                - *Accounting
+                - *Legal

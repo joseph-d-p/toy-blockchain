@@ -1,0 +1,60 @@
+version: '2'
+
+networks:
+  toycorp:
+
+services:
+
+  ca-sales:
+    image: hyperledger/fabric-ca:${IMAGE_TAG}
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-sales
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.sales.toycorp.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${SALES_CA_PRIVATE_KEY}
+      - FABRIC_CA_SERVER_PORT=7054
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.sales.toycorp.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${SALES_CA_PRIVATE_KEY} -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/sales.toycorp.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca.sales.toycorp.com
+    networks:
+      - toycorp
+
+  ca-accounting:
+    image: hyperledger/fabric-ca:${IMAGE_TAG}
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-accounting
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.accounting.toycorp.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${ACCOUNTING_CA_PRIVATE_KEY}
+      - FABRIC_CA_SERVER_PORT=8054
+    ports:
+      - "8054:8054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.accounting.toycorp.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${ACCOUNTING_CA_PRIVATE_KEY} -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/accounting.toycorp.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca.accounting.toycorp.com
+    networks:
+      - toycorp
+
+  ca-legal:
+    image: hyperledger/fabric-ca:${IMAGE_TAG}
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-legal
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.legal.toycorp.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/${LEGAL_CA_PRIVATE_KEY}
+      - FABRIC_CA_SERVER_PORT=11054
+    ports:
+      - "11054:11054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.legal.toycorp.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/${LEGAL_CA_PRIVATE_KEY} -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/legal.toycorp.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca.legal.toycorp.com
+    networks:
+      - toycorp
