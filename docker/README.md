@@ -18,8 +18,8 @@ $ mkdir -p channel-artifacts && \
 
 #### 3. Generate Fabric CA docker containers
 
-- The private keys are found in `ca` directory under `crypto-config/peerOrganizations/<org>`.
 - `IMAGE_TAG`: See [hyperledger/fabric-ca](https://hub.docker.com/r/hyperledger/fabric-ca/tags) tags.
+- The private keys are found in `ca` directory under each `crypto-config/peerOrganizations/<org>`.
 
 ```bash
 $ IMAGE_TAG=1.4 \
@@ -38,6 +38,9 @@ CONTAINER ID        IMAGE                            ...    NAMES
 66c89dbe5f3d        hyperledger/fabric-ca:1.4        ...    ca.legal.toycorp.com
 ```
 #### 4. Generate Fabric Peers docker images
+
+- `IMAGE_TAG`: See [hyperledger/fabric-peers](https://hub.docker.com/r/hyperledger/fabric-peer/tags) tags. 
+- `COMPOSE_PROJECT_NAME`: prefix for your network
 
 ```bash
 $ IMAGE_TAG=1.4 \
