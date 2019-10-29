@@ -37,7 +37,7 @@ CONTAINER ID        IMAGE                            ...    NAMES
 93367388ab19        hyperledger/fabric-ca:1.4        ...    ca.sales.toycorp.com
 66c89dbe5f3d        hyperledger/fabric-ca:1.4        ...    ca.legal.toycorp.com
 ```
-#### 4. Generate Fabric Peers docker images
+#### 4. Generate Fabric Peers docker containers
 
 - `IMAGE_TAG`: See [hyperledger/fabric-peers](https://hub.docker.com/r/hyperledger/fabric-peer/tags) tags. 
 - `COMPOSE_PROJECT_NAME`: prefix for your network
@@ -56,7 +56,6 @@ c505b5a8f224        hyperledger/fabric-peer:1.4      ...    peer0.sales.toycorp.
 425acf83dcf2        hyperledger/fabric-peer:1.4      ...    peer0.accounting.toycorp.com
 fc02a0e0525c        hyperledger/fabric-peer:1.4      ...    peer0.legal.toycorp.com
 ```
-
 
 
 ## Other Commands
