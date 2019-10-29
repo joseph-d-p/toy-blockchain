@@ -57,6 +57,24 @@ c505b5a8f224        hyperledger/fabric-peer:1.4      ...    peer0.sales.toycorp.
 fc02a0e0525c        hyperledger/fabric-peer:1.4      ...    peer0.legal.toycorp.com
 ```
 
+#### 5. Generate Fabric CLI docker containers
+
+- `IMAGE_TAG`: See [hyperledger/fabric-tools](https://hub.docker.com/r/hyperledger/fabric-tools/tags) tags.
+- `SYS_CHANNEL`: System Channel Name
+
+```bash
+$ IMAGE_TAG=1.4 \
+  SYS_CHANNEL=sys.toycorp.channel \
+  docker-compose -f docker-compose-cli.yaml up -d
+```
+
+Verify running CLI containers
+```
+CONTAINER ID        IMAGE                            ...    NAMES
+ea7398aba66f        hyperledger/fabric-tools:1.4     ...    cli.legal.toycorp.com
+8febaf865cd2        hyperledger/fabric-tools:1.4     ...    cli.accounting.toycorp.com
+613491b4bad4        hyperledger/fabric-tools:1.4     ...    cli.sales.toycorp.com
+```
 
 ## Other Commands
 See [Fabric Commands](https://hyperledger-fabric.readthedocs.io/en/release-1.4/command_ref.html).
