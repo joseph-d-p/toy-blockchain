@@ -1,0 +1,44 @@
+version: '2'
+
+volumes:
+  orderer.toycorp.com:
+  peer0.sales.toycorp.com:
+  peer0.accounting.toycorp.com:
+  peer0.legal.toycorp.com:
+
+networks:
+  toycorp:
+
+services:
+
+  orderer.toycorp.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.toycorp.com
+    container_name: orderer.toycorp.com
+    networks:
+      - toycorp
+
+  peer0.sales.toycorp.com:
+    container_name: peer0.sales.toycorp.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.sales.toycorp.com
+    networks:
+      - toycorp
+
+  peer0.accounting.toycorp.com:
+    container_name: peer0.accounting.toycorp.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.accounting.toycorp.com
+    networks:
+      - toycorp
+
+  peer0.legal.toycorp.com:
+    container_name: peer0.legal.toycorp.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.legal.toycorp.com
+    networks:
+      - toycorp
